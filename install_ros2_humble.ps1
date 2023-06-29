@@ -101,12 +101,12 @@ if (Test-Path -Path "C:\Program Files (x86)\Microsoft Visual Studio\2019\Communi
 }
 
 # Install OpenCV
-$URL = ‚Äúhttps://github.com/ros2/ros2/releases/download/opencv-archives/opencv-3.4.6-vc16.VS2019.zip‚Äù
-$FILE = ‚Äùopencv-3.4.6-vc16.VS2019.zip‚Äù
+$URL = ìhttps://github.com/ros2/ros2/releases/download/opencv-archives/opencv-3.4.6-vc16.VS2019.zipî
+$FILE = îopencv-3.4.6-vc16.VS2019.zipî
 $OPENCV_DIR = "C:\"
 Download-File -Uri $URL -OutFile $FILE
 Extract-File -File $FILE -Dir $OPENCV_DIR
-Set-Env -Name "OpenCV_DIR" -Value ($OPENCV_DIR + "\opencv")
+Set-Env -Name "OpenCV_DIR" -Value ($OPENCV_DIR + "opencv")
 Set-Path -NewPath "C:\opencv\x64\vc16\bin"
 
 # Install CMake
@@ -163,9 +163,10 @@ choco install -y graphviz
 Set-Path -NewPath "C:\Program Files\Graphviz\bin"
 
 # Install ROS2
-$URL = ‚Äúhttps://github.com/ros2/ros2/releases/download/release-humble-20230614/ros2-humble-20230614-windows-release-amd64.zip‚Äù
-$FILE = ‚Äùros2-humble-20230614-windows-release-amd64.zip‚Äù
+$URL = ìhttps://github.com/ros2/ros2/releases/download/release-humble-20230614/ros2-humble-20230614-windows-release-amd64.zipî
+$FILE = îros2-humble-20230614-windows-release-amd64.zipî
 $ROS_DIR = "C:\dev"
+$ROS_START = ($ROS_DIR + "\ros2_humble\local_setup.ps1")
 Download-File -Uri $URL -OutFile $FILE
 Extract-File -File $FILE -Dir $ROS_DIR
 if (Test-Path -Path ($ROS_DIR + "\ros2-windows")) {
@@ -178,5 +179,32 @@ Remove-Item -Path $Link
 $WshShell = New-Object -comObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut($Link)
 $Shortcut.TargetPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-$Shortcut.Arguments = "-ExecutionPolicy Bypass -NoExit -File `"" + $ROS_DIR + "\ros2_humble\local_setup.ps1`""
+$Shortcut.Arguments = "-ExecutionPolicy Bypass -NoExit -File `"" + $ROS_START + "`""
 $Shortcut.Save()
+
+# Optional add to powershell startup
+$Documents = ([Environment]::GetFolderPath("MyDocuments") + "\WindowsPowerShell")
+$title    = 'Add ROS2 to your powershell startup so you can call ROS2 at anytime without loading the script or launching the shortcut.'
+$question = 'Are you sure you want to proceed?'
+$choices  = '&Yes', '&No'
+
+$decision = $Host.UI.PromptForChoice($title, $question, $choices, 1)
+if ($decision -eq 0) {
+    Write-Host 'Adding to Powershell'
+
+    if (-not(Test-Path -Path $Documents)) {
+        New-Item -ItemType Directory -Path $Documents
+    }
+
+    $ProfileFile = ($Documents + "\Microsoft.PowerShell_profile.ps1")
+    if (Test-Path -Path $ProfileFile -PathType Leaf) {
+        $SEL = Select-String -Path $ProfileFile -Pattern $ROS_START -SimpleMatch
+
+        if ($SEL -eq $null)
+        {
+            Add-Content -Path $ProfileFile -Value $ROS_START
+        }
+    } else {
+        Set-Content -Path $ProfileFile -Value $ROS_START
+    }
+}
