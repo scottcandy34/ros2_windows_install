@@ -101,12 +101,12 @@ if (Test-Path -Path "C:\Program Files (x86)\Microsoft Visual Studio\2019\Communi
 }
 
 # Install OpenCV
-$URL = ìhttps://github.com/ros2/ros2/releases/download/opencv-archives/opencv-3.4.6-vc16.VS2019.zipî
-$FILE = îopencv-3.4.6-vc16.VS2019.zipî
-$OPENCV_DIR = "C:\opencv"
+$URL = ‚Äúhttps://github.com/ros2/ros2/releases/download/opencv-archives/opencv-3.4.6-vc16.VS2019.zip‚Äù
+$FILE = ‚Äùopencv-3.4.6-vc16.VS2019.zip‚Äù
+$OPENCV_DIR = "C:\"
 Download-File -Uri $URL -OutFile $FILE
 Extract-File -File $FILE -Dir $OPENCV_DIR
-Set-Env -Name "OpenCV_DIR" -Value $OPENCV_DIR
+Set-Env -Name "OpenCV_DIR" -Value ($OPENCV_DIR + "\opencv")
 Set-Path -NewPath "C:\opencv\x64\vc16\bin"
 
 # Install CMake
@@ -152,7 +152,7 @@ python -m pip install -U catkin_pkg cryptography empy importlib-metadata lark==1
 
 # Install Qt5
 choco install -y aqt qtcreator
-if (-not(Test-Path -Path "C:\Qt\5.12.12")) {
+if (-not(Test-Path -Path "C:\Qt\5.12.12\msvc2017_64")) {
     aqt install-qt --outputdir C:\Qt windows desktop 5.12.12 win64_msvc2017_64 --modules debug_info
 }
 Set-Env -Name "Qt5_DIR" -Value "C:\Qt\5.12.12\msvc2017_64"
@@ -163,12 +163,12 @@ choco install -y graphviz
 Set-Path -NewPath "C:\Program Files\Graphviz\bin"
 
 # Install ROS2
-$URL = ìhttps://github.com/ros2/ros2/releases/download/release-humble-20230614/ros2-humble-20230614-windows-release-amd64.zipî
-$FILE = îros2-humble-20230614-windows-release-amd64.zipî
+$URL = ‚Äúhttps://github.com/ros2/ros2/releases/download/release-humble-20230614/ros2-humble-20230614-windows-release-amd64.zip‚Äù
+$FILE = ‚Äùros2-humble-20230614-windows-release-amd64.zip‚Äù
 $ROS_DIR = "C:\dev"
 Download-File -Uri $URL -OutFile $FILE
 Extract-File -File $FILE -Dir $ROS_DIR
-if (Test-Path -Path ($ROS_DIR + "ros2-windows")) {
+if (Test-Path -Path ($ROS_DIR + "\ros2-windows")) {
     Rename-Item -NewName "ros2_humble" -Path ($ROS_DIR + "ros2-windows") -Force
 }
 
