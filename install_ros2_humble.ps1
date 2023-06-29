@@ -94,7 +94,7 @@ $CONFIG = '{
   ]
 }'
 Set-Content -Path ($DownloadDir + "\vs_2019_ros2.vsconfig") -Value $CONFIG
-if (Test-Path -Path "C:\Program Files (x86)\Microsoft Visual Studio\2019") {
+if (Test-Path -Path "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community") {
     Start-Process -FilePath 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installershell.exe' -ArgumentList ("modify --passive --norestart --force --installpath 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community' --config " + $DownloadDir + "\vs_2019_ros2.vsconfig --remove Microsoft.VisualStudio.ComponentGroup.WebToolsExtensions.CMake --remove Microsoft.VisualStudio.Component.VC.CMake.Project")
 } else {
     choco install -y visualstudio2019community  --package-parameters ("--passive --config " + $DownloadDir + "\vs_2019_ros2.vsconfig")
