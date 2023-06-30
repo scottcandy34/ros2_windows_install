@@ -151,22 +151,29 @@ foreach ($file in $files) {
 }
 choco install -y -s $DownloadDir asio cunit eigen tinyxml-usestl tinyxml2 log4cxx bullet
 
-python -m pip install -U catkin_pkg cryptography empy ifcfg lark-parser lxml netifaces numpy opencv-python pyparsing==2.4.7 pyyaml setuptools==59.6.0 rosdistro
+python -m pip install -U catkin_pkg cryptography empy ifcfg importlib-metadata lark-parser lxml matplotlib netifaces numpy opencv-python PyQt5 pip pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro setuptools==59.6.0
+
+# Install Qt5
+choco install -y aqt qtcreator
+if (-not(Test-Path -Path "C:\Qt\5.12.12\msvc2017_64")) {
+    aqt install-qt --outputdir C:\Qt windows desktop 5.12.12 win64_msvc2017_64 --modules debug_info
+}
+Set-Env -Name "Qt5_DIR" -Value "C:\Qt\5.12.12\msvc2017_64"
+Set-Env -Name "QT_QPA_PLATFORM_PLUGIN_PATH" -Value "C:\Qt\5.12.12\msvc2017_64\plugins\platforms"
 
 # Install RQt Dependencies
-python -m pip install -U pydot PyQt5
 choco install -y graphviz
 Set-Path -NewPath "C:\Program Files\Graphviz\bin"
 
 # Install ROS2
-$URL = “https://github.com/ros2/ros2/releases/download/release-foxy-20230620/ros2-foxy-20230620-windows-release-amd64.zip”
-$FILE = ”ros2-foxy-20230620-windows-release-amd64.zip”
+$URL = “https://github.com/ros2/ros2/releases/download/release-galactic-20221209/ros2-galactic-20221209-windows-release-amd64.zip”
+$FILE = ”ros2-galactic-20221209-windows-release-amd64.zip”
 $ROS_DIR = "C:\dev"
-$ROS_START = ($ROS_DIR + "\ros2_foxy\local_setup.ps1")
+$ROS_START = ($ROS_DIR + "\ros2_galactic\local_setup.ps1")
 Download-File -Uri $URL -OutFile $FILE
 Extract-File -File $FILE -Dir $ROS_DIR
 if (Test-Path -Path ($ROS_DIR + "\ros2-windows")) {
-    Rename-Item -NewName "ros2_foxy" -Path ($ROS_DIR + "ros2-windows") -Force
+    Rename-Item -NewName "ros2_galactic" -Path ($ROS_DIR + "ros2-windows") -Force
 }
 
 # Creating Desktop Shortcut
