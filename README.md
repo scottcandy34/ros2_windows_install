@@ -9,5 +9,7 @@ A Simplified all in one ROS2 Installer for windows
 ## Humble Hawksbill - [Patch Release 3.1](https://github.com/ros2/ros2/releases/tag/release-humble-20230614)
 - Tested on windows 10 and 11
 - Installer based off of their [documentation](https://docs.ros.org/en/humble/Installation/Windows-Install-Binary.html).
+## Galactic Geochelone - [Patch Release 2](https://github.com/ros2/ros2/releases/tag/release-galactic-20221209)
+- Installer based off of their [documentation](https://docs.ros.org/en/galactic/Installation/Windows-Install-Binary.html).
 ## Foxy Fitzroy - [Patch Release 11](https://github.com/ros2/ros2/releases/tag/release-foxy-20230620)
 - Installer based off of their [documentation](https://docs.ros.org/en/foxy/Installation/Windows-Install-Binary.html).
