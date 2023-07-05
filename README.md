@@ -6,6 +6,9 @@ A Simplified all in one ROS2 Installer for windows
 - Download script and run with powershell.
 - Can Update/reinstall and uninstall
 - Will always get latest version available
+#### Multiple installed versions
+You should be able to install multiple versions at once. Just opt out of the last option asking to add to powershell startup. You will have different desktop links pointing to the installed versions.
+- This will not install multiple dependencies, only what is not already installed.
 ## Iron Irwini [Release](https://github.com/ros2/ros2/releases?q=iron+irwini)
 - Installer based off of their [documentation](https://docs.ros.org/en/iron/Installation/Windows-Install-Binary.html).
 #### To use run this command inside an administrative shell.
