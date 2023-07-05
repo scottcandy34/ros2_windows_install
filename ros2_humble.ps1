@@ -70,6 +70,34 @@ function Download-File {
     }
 }
 
+function Get-Release {
+    param (
+        $Search,
+        $Page = 1
+    )
+
+    $repo = "ros2/ros2"
+    $api_uri = "https://api.github.com/repos/$repo/releases?page=$Page&per_page=100"
+
+    $releases = (Invoke-WebRequest $api_uri -UseBasicParsing | ConvertFrom-Json)
+
+    if ($releases -eq $null) {
+        return $null
+    }
+
+    $release = $releases | Where-Object {$_.tag_name -like "*$Search*"} | Select-Object -First 1
+
+    if ($release -eq $null) {
+        $Page++
+        return Get-Release -Search $Search -Page $Page
+    } else {
+        $asset = $release.assets | Where-Object {$_.name -like "*-windows-release-amd64.zip"} | Select-Object -First 1
+        $file = $asset.name
+        $download = $asset.browser_download_url
+        return @{ file = $file; url = $download }
+    }
+}
+
 function Extract-File { 
     param (
         $File,
@@ -235,11 +263,15 @@ function Standard-Install {
     Set-Path -NewPath "C:\Program Files\Graphviz\bin"
 
     # Install ROS2
-    $URL = “https://github.com/ros2/ros2/releases/download/release-humble-20230614/ros2-humble-20230614-windows-release-amd64.zip”
-    $FILE = ”ros2-humble-20230614-windows-release-amd64.zip”
+    $release = Get-Release -Search "humble"
+    if ($release -eq $null) {
+        Write-Output "Error getting release information"
+        pause
+        exit
+    }
     $ROS_DIR = "C:\dev"
-    Download-File -Uri $URL -OutFile $FILE
-    Extract-File -File $FILE -Dir $ROS_DIR
+    Download-File -Uri $release.url -OutFile $release.file
+    Extract-File -File $release.file -Dir $ROS_DIR
     if (Test-Path -Path ($ROS_DIR + "\ros2-windows")) {
         Rename-Item -NewName "ros2_humble" -Path ($ROS_DIR + "ros2-windows") -Force
     }
