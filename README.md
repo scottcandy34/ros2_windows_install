@@ -5,6 +5,7 @@ A Simplified all in one ROS2 Installer for windows
 - Will Prompt to add to powershell startup
 - Download script and run with powershell.
 - Can Update/reinstall and uninstall
+- Will always get latest version available
 ## Iron Irwini [Release](https://github.com/ros2/ros2/releases/tag/release-iron-20230523)
 - Installer based off of their [documentation](https://docs.ros.org/en/iron/Installation/Windows-Install-Binary.html).
 #### To use run this command inside an administrative shell.
