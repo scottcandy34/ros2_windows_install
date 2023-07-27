@@ -114,6 +114,10 @@ function Add_Links {
         $Path
     )
     $Startup = "$Path\local_setup.ps1"
+
+    # force default DDS implementation
+    "set RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`n" + (Get-Content $Startup -Raw) | Set-Content $Startup
+
     # Creating Desktop Shortcut
     $Link = ([Environment]::GetFolderPath("Desktop") + "\ROS2 Galactic Terminal.lnk")
     if (Test-Path -Path $Link -PathType Leaf) {
