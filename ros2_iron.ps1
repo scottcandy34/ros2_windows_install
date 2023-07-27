@@ -1,4 +1,4 @@
-# Gain Admin permissions
+Ôªø# Gain Admin permissions
 if(!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
  Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList "-File `"$($MyInvocation.MyCommand.Path)`"  `"$($MyInvocation.MyCommand.UnboundArguments)`""
  Exit
@@ -101,9 +101,10 @@ function Get-Release {
 function Extract-File { 
     param (
         $File,
-        $Dir
+        $Dir,
+        $Folder = ""
     )
-    if (-not(Test-Path -Path $Dir)) {
+    if (-not(Test-Path -Path ($Dir + $Folder))) {
         Expand-Archive -Path ($DownloadDir + "\" + $File) -DestinationPath $Dir
     }
 }
@@ -201,8 +202,8 @@ function Standard-Install {
     }
 
     # Install OpenCV
-    $URL = ìhttps://github.com/ros2/ros2/releases/download/opencv-archives/opencv-3.4.6-vc16.VS2019.zipî
-    $FILE = îopencv-3.4.6-vc16.VS2019.zipî
+    $URL = ‚Äúhttps://github.com/ros2/ros2/releases/download/opencv-archives/opencv-3.4.6-vc16.VS2019.zip‚Äù
+    $FILE = ‚Äùopencv-3.4.6-vc16.VS2019.zip‚Äù
     $OPENCV_DIR = "C:\"
     Download-File -Uri $URL -OutFile $FILE
     Extract-File -File $FILE -Dir $OPENCV_DIR
@@ -272,9 +273,11 @@ function Standard-Install {
         Download-File @file
     }
     $LibxmlDir = "C:\xmllint"
-    ECHO S | Expand-7Zip -FullName "$DownloadDir/libxml2-2.9.3-win32-x86_64.7z" -DestinationPath $LibxmlDir
-    ECHO S | Expand-7Zip -FullName "$DownloadDir/iconv-1.14-win32-x86_64.7z" -DestinationPath $LibxmlDir
-    ECHO S | Expand-7Zip -FullName "$DownloadDir/zlib-1.2.8-win32-x86_64.7z" -DestinationPath $LibxmlDir
+    if (-not(Test-Path -Path $LibxmlDir)) {
+        Expand-7Zip -FullName "$DownloadDir/libxml2-2.9.3-win32-x86_64.7z" -DestinationPath $LibxmlDir
+        Expand-7Zip -FullName "$DownloadDir/iconv-1.14-win32-x86_64.7z" -DestinationPath $LibxmlDir
+        Expand-7Zip -FullName "$DownloadDir/zlib-1.2.8-win32-x86_64.7z" -DestinationPath $LibxmlDir
+    }
     Set-Path -NewPath $LibxmlDir
 
     # Install Qt5
@@ -298,7 +301,7 @@ function Standard-Install {
     }
     $ROS_DIR = "C:\dev"
     Download-File -Uri $release.url -OutFile $release.file
-    Extract-File -File $release.file -Dir $ROS_DIR
+    #Extract-File -File $release.file -Dir $ROS_DIR -Folder "\ros2-windows"
     if (Test-Path -Path "$ROS_DIR\ros2-windows") {
         Rename-Item -NewName "ros2_iron" -Path "$ROS_DIR\ros2-windows" -Force
     }
