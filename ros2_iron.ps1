@@ -301,7 +301,7 @@ function Standard-Install {
     }
     $ROS_DIR = "C:\dev"
     Download-File -Uri $release.url -OutFile $release.file
-    #Extract-File -File $release.file -Dir $ROS_DIR -Folder "\ros2-windows"
+    Extract-File -File $release.file -Dir $ROS_DIR -Folder "\ros2-windows"
     if (Test-Path -Path "$ROS_DIR\ros2-windows") {
         Rename-Item -NewName "ros2_iron" -Path "$ROS_DIR\ros2-windows" -Force
     }
