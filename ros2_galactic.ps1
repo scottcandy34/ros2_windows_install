@@ -129,7 +129,7 @@ function Standard-Install {
     Download-File -Uri $release.url -OutFile $release.file -Folder "\ros2-windows"
     Extract-File -File $release.file -Dir $ROS_DIR -Folder "\ros2-windows"
     if (Test-Path -Path "$ROS_DIR\ros2_$Version") {
-        Uninstall -Path "ros2_$Version" -Title "ROS2 $Version_Title for Update"
+        Uninstall -Path "$ROS_DIR\ros2_$Version" -Title "ROS2 $Version_Title for Update"
     }
     Rename-Item -NewName "ros2_$Version" -Path "$ROS_DIR\ros2-windows" -Force
 
