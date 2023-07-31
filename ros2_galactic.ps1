@@ -109,7 +109,7 @@ function Standard-Install {
     }
     choco install -y -s $DownloadDir asio cunit eigen tinyxml-usestl tinyxml2 log4cxx bullet
 
-    python -m pip install -U catkin_pkg cryptography empy ifcfg importlib-metadata lark-parser lxml matplotlib netifaces numpy opencv-python PyQt5 pip pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro setuptools==59.6.0
+    py -3.8 -m pip install -U catkin_pkg cryptography empy ifcfg importlib-metadata lark-parser lxml matplotlib netifaces numpy opencv-python PyQt5 pip pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro setuptools==59.6.0
 
     # Install Qt5
     choco install -y aqt qtcreator

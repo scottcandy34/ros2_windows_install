@@ -109,10 +109,10 @@ function Standard-Install {
     }
     choco install -y -s $DownloadDir asio cunit eigen tinyxml-usestl tinyxml2 log4cxx bullet
 
-    python -m pip install -U catkin_pkg cryptography empy ifcfg lark-parser lxml netifaces numpy opencv-python pyparsing==2.4.7 pyyaml setuptools==59.6.0 rosdistro
+    py -3.8 -m pip install -U catkin_pkg cryptography empy ifcfg lark-parser lxml netifaces numpy opencv-python pyparsing==2.4.7 pyyaml setuptools==59.6.0 rosdistro
 
     # Install RQt Dependencies
-    python -m pip install -U pydot PyQt5
+    py -3.8 -m pip install -U pydot PyQt5
     choco install -y graphviz
     Set-Path -NewPath "C:\Program Files\Graphviz\bin"
 

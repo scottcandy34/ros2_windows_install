@@ -105,8 +105,8 @@ function Standard-Install {
     }
     choco install -y -s $DownloadDir asio cunit eigen tinyxml-usestl tinyxml2 bullet
 
-    python -m pip install -U pip setuptools==59.6.0
-    python -m pip install -U catkin_pkg cryptography empy importlib-metadata jsonschema lark==1.1.1 lxml matplotlib netifaces numpy opencv-python PyQt5 pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro
+    py -3.8 -m pip install -U pip setuptools==59.6.0
+    py -3.8 -m pip install -U catkin_pkg cryptography empy importlib-metadata jsonschema lark==1.1.1 lxml matplotlib netifaces numpy opencv-python PyQt5 pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro
 
     # Install Miscellaneous Prerequisistes
     Install-Module -Name PS7Zip -Force
