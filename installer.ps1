@@ -189,7 +189,7 @@ function Install-Python {
 }
 
 function Python-Path {
-    $Py38 = py -0p | Select-String -Pattern '(3.8)\s*(.*\.exe)'
+    $Py38 = py -0p | Select-String -Pattern '(3.8)[\s\*]*(.*\.exe)'
     return $Py38.Matches.Groups[2].Value
 }
 
