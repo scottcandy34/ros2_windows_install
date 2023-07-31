@@ -6,8 +6,12 @@ $Version = "iron"
 $Version_Title = "Iron"
 
 function Standard-Install {
+    # Set Custom Chocolatey location
+    $env:ChocolateyInstall = "C:\dev\chocolatey"
+
     # Install Python
-    choco install -y python --version 3.8.3
+    Install-Python
+    $PythonPath = Python-Path
 
     # Install Visual C++ Redistributables
     choco install -y vcredist2013 vcredist140
@@ -160,10 +164,10 @@ function Standard-Install {
     Rename-Item -NewName "ros2_$Version" -Path "$ROS_DIR\ros2-windows" -Force
 
     # Modify setup file
-    Startup-Add -Content "`$env:RMW_IMPLEMENTATION=rmw_fastrtps_cpp" -Dir "$ROS_DIR\ros2_$Version"
-    Startup-Add -Content "`$env:COLCON_PYTHON_EXECUTABLE=$PythonPath" -Dir "$ROS_DIR\ros2_$Version"
+    Startup-Add -Content "`$env:RMW_IMPLEMENTATION = `"rmw_fastrtps_cpp`"" -Dir "$ROS_DIR\ros2_$Version"
+    Startup-Add -Content "`$env:COLCON_PYTHON_EXECUTABLE = `"$PythonPath`"" -Dir "$ROS_DIR\ros2_$Version"
     $_python_env = $PythonPath.Replace("python.exe", "Scripts\;") + $PythonPath.Replace("python.exe", ";")
-    Startup-Add -Content "`$env:Path = $_python_env + `$env:Path" -Dir "$ROS_DIR\ros2_$Version"
+    Startup-Add -Content "`$env:Path = `"$_python_env`" + `$env:Path" -Dir "$ROS_DIR\ros2_$Version"
 
     Add_Links -Path "$ROS_DIR\ros2_iron"
 }
