@@ -50,22 +50,25 @@ function Uninstall {
         $Path,
         $Title
     )
-    $filesToDelete = Get-ChildItem $Path -Recurse
-    [array]::Reverse($filesToDelete)
+    if (Test-Path -Path ($Path)) {
+        $filesToDelete = Get-ChildItem $Path -Recurse
+        [array]::Reverse($filesToDelete)
 
-    [int]$hundredthStep = $filesToDelete.Count / 100
-    for($i = 0; $i -lt $filesToDelete.Count; $i += $hundredthStep){
-        # calculate progress percentage
-        $percentage = ($i + 1) / $filesToDelete.Count * 100
-        Write-Progress -Activity "Uninstalling $Title" -Status "Deleting File up to #$($i+1)/$($filesToDelete.Count)" -PercentComplete $percentage
-        # delete file
-        $filesToDelete[$i..($i + $hundredthStep - 1)] | Remove-Item -Force -Recurse
+        [int]$hundredthStep = $filesToDelete.Count / 100
+        for($i = 0; $i -lt $filesToDelete.Count; $i += $hundredthStep){
+            # calculate progress percentage
+            $percentage = ($i + 1) / $filesToDelete.Count * 100
+            Write-Progress -Activity "Uninstalling $Title" -Status "Deleting File up to #$($i+1)/$($filesToDelete.Count)" -PercentComplete $percentage
+            # delete file
+            $filesToDelete[$i..($i + $hundredthStep - 1)] | Remove-Item -Force -Recurse
+        }
+        # All done
+        Write-Progress -Activity "Uninstalling $Title" -Completed
+        if (Test-Path -Path $Path) {
+            Remove-Item -Path $Path -Force -Recurse
+        }
     }
-    # All done
-    Write-Progress -Activity "Uninstalling $Title" -Completed
-    if (Test-Path -Path $Path) {
-        Remove-Item -Path $Path -Force -Recurse
-    }
+    
 }
 
 function Download-File {
