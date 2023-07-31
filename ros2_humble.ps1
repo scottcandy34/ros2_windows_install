@@ -1,165 +1,17 @@
-﻿# Gain Admin permissions
-if(!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
- Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList "-File `"$($MyInvocation.MyCommand.Path)`"  `"$($MyInvocation.MyCommand.UnboundArguments)`""
- Exit
-}
+﻿# Get Installer and import global functions
+iex ((New-Object System.Net.WebClient).DownloadString('https://github.com/scottcandy34/ros2_windows_install/raw/main/installer.ps1'))
 
-$DownloadDir = ($env:TEMP + "\ros2_install")
-if (-not(Test-Path -Path $DownloadDir)) {
-    New-Item -ItemType Directory -Path $DownloadDir
-}
-
-# Functions
-function Set-Env {
-    param (
-        $Name,
-        $Value
-    )
-    [Environment]::SetEnvironmentVariable($Name, $Value, "Machine")
-}
-
-function Set-Path {
-    param (
-        $NewPath
-    )
-    $PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine')
-    if (-not($PATH.Contains($NewPath))) {
-      Set-Env -Name "PATH" -Value ($PATH + ";" + $NewPath)
-    }
-}
-
-function Remove-Path {
-    param (
-        $RemovePath
-    )
-    $PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine')
-    $PATH = ($PATH.Split(';') | Where-Object { $_ -ne $RemovePath }) -join ';'
-    Set-Env -Name "PATH" -Value $PATH
-}
-
-function Uninstall {
-    param (
-        $Path,
-        $Title
-    )
-    $filesToDelete = Get-ChildItem $Path -Recurse
-    [array]::Reverse($filesToDelete)
-
-    [int]$hundredthStep = $filesToDelete.Count / 100
-    for($i = 0; $i -lt $filesToDelete.Count; $i += $hundredthStep){
-        # calculate progress percentage
-        $percentage = ($i + 1) / $filesToDelete.Count * 100
-        Write-Progress -Activity "Uninstalling $Title" -Status "Deleting File up to #$($i+1)/$($filesToDelete.Count)" -PercentComplete $percentage
-        # delete file
-        $filesToDelete[$i..($i + $hundredthStep - 1)] | Remove-Item -Force -Recurse
-    }
-    # All done
-    Write-Progress -Activity "Uninstalling $Title" -Completed
-    if (Test-Path -Path $Path) {
-        Remove-Item -Path $Path -Force -Recurse
-    }
-}
-
-function Download-File {
-    param (
-        $Uri,
-        $OutFile
-    )
-    if (-not(Test-Path -Path ($DownloadDir + "\" + $OutFile) -PathType Leaf)) {
-        Invoke-WebRequest -Uri $Uri -OutFile ($DownloadDir + "\" + $OutFile)
-    }
-}
-
-function Get-Release {
-    param (
-        $Search,
-        $Page = 1
-    )
-
-    $repo = "ros2/ros2"
-    $api_uri = "https://api.github.com/repos/$repo/releases?page=$Page&per_page=100"
-
-    $releases = (Invoke-WebRequest $api_uri -UseBasicParsing | ConvertFrom-Json)
-
-    if ($releases -eq $null) {
-        return $null
-    }
-
-    $release = $releases | Where-Object {$_.tag_name -like "*$Search*"} | Select-Object -First 1
-
-    if ($release -eq $null) {
-        $Page++
-        return Get-Release -Search $Search -Page $Page
-    } else {
-        $asset = $release.assets | Where-Object {$_.name -like "*-windows-release-amd64.zip"} | Select-Object -First 1
-        $file = $asset.name
-        $download = $asset.browser_download_url
-        return @{ file = $file; url = $download }
-    }
-}
-
-function Extract-File { 
-    param (
-        $File,
-        $Dir,
-        $Folder = ""
-    )
-    if (-not(Test-Path -Path ($Dir + $Folder))) {
-        Expand-Archive -Path ($DownloadDir + "\" + $File) -DestinationPath $Dir
-    }
-}
-
-function Add_Links {
-    param (
-        $Path
-    )
-    $Startup = "$Path\local_setup.ps1"
-
-    # force default DDS implementation
-    "set RMW_IMPLEMENTATION=rmw_fastrtps_cpp`n" + (Get-Content $Startup -Raw) | Set-Content $Startup
-
-    # Creating Desktop Shortcut
-    $Link = ([Environment]::GetFolderPath("Desktop") + "\ROS2 Humble Terminal.lnk")
-    if (Test-Path -Path $Link -PathType Leaf) {
-        Remove-Item -Path $Link
-    }
-    $WshShell = New-Object -comObject WScript.Shell
-    $Shortcut = $WshShell.CreateShortcut($Link)
-    $Shortcut.TargetPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-    $Shortcut.Arguments = "-ExecutionPolicy Bypass -NoExit -File `"" + $Startup + "`""
-    $Shortcut.Save()
-
-    # Optional add to powershell startup
-    $Documents = ([Environment]::GetFolderPath("MyDocuments") + "\WindowsPowerShell")
-    $title    = 'Add ROS2 to your powershell startup so you can call ROS2 at anytime without loading the script or launching the shortcut.'
-    $question = 'Are you sure you want to proceed?'
-    $choices  = '&Yes', '&No'
-
-    $decision = $Host.UI.PromptForChoice($title, $question, $choices, 1)
-    if ($decision -eq 0) {
-        Write-Host 'Adding to Powershell'
-
-        if (-not(Test-Path -Path $Documents)) {
-            New-Item -ItemType Directory -Path $Documents
-        }
-
-        $ProfileFile = ($Documents + "\Microsoft.PowerShell_profile.ps1")
-        if (Test-Path -Path $ProfileFile -PathType Leaf) {
-            $SEL = Select-String -Path $ProfileFile -Pattern $Startup -SimpleMatch
-
-            if ($SEL -eq $null)
-            {
-                Add-Content -Path $ProfileFile -Value $Startup
-            }
-        } else {
-            Set-Content -Path $ProfileFile -Value $Startup
-        }
-    }
-}
+# Set version
+$Version = "humble"
+$Version_Title = "Humble"
 
 function Standard-Install {
+    # Set Custom Chocolatey location
+    $env:ChocolateyInstall = "C:\dev\chocolatey"
+
     # Install Python
-    choco install -y python --version 3.8.3
+    Install-Python
+    $PythonPath = Python-Path
 
     # Install Visual C++ Redistributables
     choco install -y vcredist2013 vcredist140
@@ -252,8 +104,8 @@ function Standard-Install {
     }
     choco install -y -s $DownloadDir asio cunit eigen tinyxml-usestl tinyxml2 bullet
 
-    python -m pip install -U pip setuptools==59.6.0
-    python -m pip install -U catkin_pkg cryptography empy importlib-metadata lark==1.1.1 lxml matplotlib netifaces numpy opencv-python PyQt5 pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro
+    py -3.8 -m pip install -U pip setuptools==59.6.0
+    py -3.8 -m pip install -U catkin_pkg cryptography empy importlib-metadata lark==1.1.1 lxml matplotlib netifaces numpy opencv-python PyQt5 pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro
 
     # Install Qt5
     choco install -y aqt qtcreator
@@ -268,7 +120,7 @@ function Standard-Install {
     Set-Path -NewPath "C:\Program Files\Graphviz\bin"
 
     # Install ROS2
-    $release = Get-Release -Search "humble"
+    $release = Get-Release -Search $Version
     if ($release -eq $null) {
         Write-Output "Error getting release information"
         pause
@@ -276,12 +128,19 @@ function Standard-Install {
     }
     $ROS_DIR = "C:\dev"
     Download-File -Uri $release.url -OutFile $release.file -Folder "\ros2-windows"
-    Extract-File -File $release.file -Dir $ROS_DIR
-    if (Test-Path -Path "$ROS_DIR\ros2-windows") {
-        Rename-Item -NewName "ros2_humble" -Path "$ROS_DIR\ros2-windows" -Force
+    Extract-File -File $release.file -Dir $ROS_DIR -Folder "\ros2-windows"
+    if (Test-Path -Path "$ROS_DIR\ros2_$Version") {
+        Uninstall -Path "ros2_$Version" -Title "ROS2 $Version_Title for Update"
     }
+    Rename-Item -NewName "ros2_$Version" -Path "$ROS_DIR\ros2-windows" -Force
 
-    Add_Links -Path "$ROS_DIR\ros2_humble"
+    # Modify setup file
+    Startup-Add -Content "`$env:RMW_IMPLEMENTATION=rmw_fastrtps_cpp" -Dir "$ROS_DIR\ros2_$Version"
+    Startup-Add -Content "`$env:COLCON_PYTHON_EXECUTABLE=$PythonPath" -Dir "$ROS_DIR\ros2_$Version"
+    $_python_env = $PythonPath.Replace("python.exe", "Scripts\;") + $PythonPath.Replace("python.exe", ";")
+    Startup-Add -Content "`$env:Path = $_python_env + `$env:Path" -Dir "$ROS_DIR\ros2_$Version"
+
+    Add_Links -Path "$ROS_DIR\ros2_$Version"
 }
 
 function Alternate-Install {
@@ -333,17 +192,17 @@ function Alternate-Install {
     choco source add -n=ros-win -s="https://aka.ms/ros/public" --priority=1
     choco upgrade ros-humble-desktop -y --execution-timeout=0 -pre
 
-    Add_Links -Path "C:\opt\ros\humble\x64\"
+    Add_Links -Path "C:\opt\ros\$Version\x64\"
 }
 
 function Uninstall-Ros {
     # Uninstall ROS2 Standard
     $ROS_DIR = "C:\dev"
     if (Test-Path -Path $ROS_DIR) {
-        $ROS_DIR_INSTALL = "$ROS_DIR\ros2_humble"
+        $ROS_DIR_INSTALL = "$ROS_DIR\ros2_$Version"
         $ROS_START = "$ROS_DIR_INSTALL\local_setup.ps1"
         if (Test-Path -Path $ROS_DIR_INSTALL) {
-            Uninstall -Path $ROS_DIR_INSTALL -Title "ROS2 Humble Standard"
+            Uninstall -Path $ROS_DIR_INSTALL -Title "ROS2 $Version_Title Standard"
         }
         $ROS_INSTALL_COUNT = (Get-ChildItem -Directory -Path $ROS_DIR | Measure-Object).Count
         if ($ROS_INSTALL_COUNT -eq 0) {
@@ -353,10 +212,10 @@ function Uninstall-Ros {
 
     # Uninstall ROS2 Alternate Build
     if (Test-Path -Path "C:\opt") {
-        $ROS_START = "C:\opt\ros\humble\x64\local_setup.ps1"
+        $ROS_START = "C:\opt\ros\$Version\x64\local_setup.ps1"
         $env:ChocolateyInstall = "c:\opt\chocolatey"
         choco uninstall -y ros-humble-desktop --skipautouninstaller
-        Uninstall -Path "C:\opt\ros\humble" -Title "ROS2 Humble Alternate Build"
+        Uninstall -Path "C:\opt\ros\$Version" -Title "ROS2 $Version_Title Alternate Build"
 
         $ROS_INSTALL_COUNT = (Get-ChildItem -Directory -Path $ROS_DIR | Measure-Object).Count
         if ($ROS_INSTALL_COUNT -eq 0) {
@@ -381,16 +240,19 @@ function Uninstall-Ros {
             Set-Content $ProfileFile -Value $REMOVED_LINK -Force
         }
     }
-    $Link = ([Environment]::GetFolderPath("Desktop") + "\ROS2 Humble Terminal.lnk")
+    $Link = ([Environment]::GetFolderPath("Desktop") + "\ROS2 $Version_Title Terminal.lnk")
     if (Test-Path -Path $Link -PathType Leaf) {
         Remove-Item -Path $Link
     }
 }
 
 function Uninstall-Dep {
+    # Set Custom Chocolatey location
+    $env:ChocolateyInstall = "C:\dev\chocolatey"
+    
     # Uninstall python packages
-    python -m pip uninstall -y catkin_pkg cryptography empy importlib-metadata lark==1.1.1 lxml matplotlib netifaces numpy opencv-python PyQt5 pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro
-    python -m pip uninstall -y pip setuptools==59.6.0
+    py -3.8 -m pip uninstall -y catkin_pkg cryptography empy importlib-metadata lark==1.1.1 lxml matplotlib netifaces numpy opencv-python PyQt5 pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro
+    py -3.8 -m pip uninstall -y pip setuptools==59.6.0
 
     # Uninstall Chocolaty packages
     ECHO Y | choco uninstall -y graphviz -n
@@ -419,41 +281,4 @@ function Uninstall-Dep {
     Remove-Path -RemovePath "C:\Python38\Scripts\"
 }
 
-# Install Chocolatey
-Set-ExecutionPolicy Bypass -Scope Process -Force
-[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-
-# Check if installed already
-$Standard = "C:\dev\ros2_humble"
-$Alternate = "C:\opt\ros\humble"
-if ((Test-Path -Path $Standard) -or (Test-Path -Path $Alternate)) {
-    $title    = 'You already have ROS2 Humble installed.'
-    $question = 'What Would you like to do?'
-    $choices  = '&0: Update/Reinstall', '&1: Uninstall ROS', '&2: Uninstall Dependencies'
-    $decision = $Host.UI.PromptForChoice($title, $question, $choices, 0)
-
-    if ($decision -eq 0) {
-        if (Test-Path -Path $Standard) {
-            Standard-Install
-        } elseIf (Test-Path -Path $Alternate) {
-            Alternate-Install
-        }
-    } elseif ($decision -eq 1) {
-        Uninstall-Ros
-    } elseif ($decision -eq 2) {
-        Uninstall-Dep
-    }
-} else {
-    # Ask What Build Type
-    $title    = 'Install ROS 2 Humble'
-    $question = 'What build would you like to install?'
-    $choices  = '&0: Standard (From ROS Creators)', '&1: Alternate (Offical Microsoft Build)'
-    $decision = $Host.UI.PromptForChoice($title, $question, $choices, 0)
-
-    if ($decision -eq 0) {
-        Standard-Install
-    } else {
-        Alternate-Install
-    }
-}
+Start-Installer
