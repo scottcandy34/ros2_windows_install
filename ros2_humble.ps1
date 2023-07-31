@@ -128,11 +128,11 @@ function Standard-Install {
     }
     $ROS_DIR = "C:\dev"
     Download-File -Uri $release.url -OutFile $release.file -Folder "\ros2-windows"
-    #Extract-File -File $release.file -Dir $ROS_DIR -Folder "\ros2-windows"
-    #if (Test-Path -Path "$ROS_DIR\ros2_$Version") {
-    #    Uninstall -Path "$ROS_DIR\ros2_$Version" -Title "ROS2 $Version_Title for Update"
-    #}
-    #Rename-Item -NewName "ros2_$Version" -Path "$ROS_DIR\ros2-windows" -Force
+    Extract-File -File $release.file -Dir $ROS_DIR -Folder "\ros2-windows"
+    if (Test-Path -Path "$ROS_DIR\ros2_$Version") {
+        Uninstall -Path "$ROS_DIR\ros2_$Version" -Title "ROS2 $Version_Title for Update"
+    }
+    Rename-Item -NewName "ros2_$Version" -Path "$ROS_DIR\ros2-windows" -Force
 
     # Modify setup file
     Startup-Add -Content "`$env:RMW_IMPLEMENTATION = `"rmw_fastrtps_cpp`"" -Dir "$ROS_DIR\ros2_$Version"
