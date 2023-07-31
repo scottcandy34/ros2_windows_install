@@ -6,6 +6,10 @@ A Simplified all in one ROS2 Installer for windows
 - Download script and run with powershell.
 - Can Update/reinstall and uninstall
 - Will always get latest version available
+#### Windows 11 support
+- rviz2 command does not display anything. (issue)
+- ros2 seams to work just fine.
+- rqt_graph seams to work as well.
 #### Multiple installed versions
 You should be able to install multiple versions at once. Just opt out of the last option asking to add to powershell startup. You will have different desktop links pointing to the installed versions.
 - This will not install multiple dependencies, only what is not already installed.
