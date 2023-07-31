@@ -8,6 +8,7 @@ $Version_Title = "Foxy"
 function Standard-Install {
     # Set Custom Chocolatey location
     $env:ChocolateyInstall = "C:\dev\chocolatey"
+    $env:Path = "C:\dev\chocolatey\bin;" + $env:Path
 
     # Install Python
     Install-Python
@@ -62,7 +63,7 @@ function Standard-Install {
     $FILE = ”opencv-3.4.6-vc16.VS2019.zip”
     $OPENCV_DIR = "C:\"
     Download-File -Uri $URL -OutFile $FILE
-    Extract-File -File $FILE -Dir $OPENCV_DIR
+    Extract-File -File $FILE -Dir $OPENCV_DIR -Folder "\opencv"
     Set-Env -Name "OpenCV_DIR" -Value ($OPENCV_DIR + "opencv")
     Set-Path -NewPath "C:\opencv\x64\vc16\bin"
 

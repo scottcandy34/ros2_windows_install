@@ -8,6 +8,7 @@ $Version_Title = "Humble"
 function Standard-Install {
     # Set Custom Chocolatey location
     $env:ChocolateyInstall = "C:\dev\chocolatey"
+    $env:Path = "C:\dev\chocolatey\bin;" + $env:Path
 
     # Install Python
     Install-Python
@@ -62,7 +63,7 @@ function Standard-Install {
     $FILE = ”opencv-3.4.6-vc16.VS2019.zip”
     $OPENCV_DIR = "C:\"
     Download-File -Uri $URL -OutFile $FILE
-    Extract-File -File $FILE -Dir $OPENCV_DIR
+    Extract-File -File $FILE -Dir $OPENCV_DIR -Folder "\opencv"
     Set-Env -Name "OpenCV_DIR" -Value ($OPENCV_DIR + "opencv")
     Set-Path -NewPath "C:\opencv\x64\vc16\bin"
 
@@ -249,6 +250,7 @@ function Uninstall-Ros {
 function Uninstall-Dep {
     # Set Custom Chocolatey location
     $env:ChocolateyInstall = "C:\dev\chocolatey"
+    $env:Path = "C:\dev\chocolatey\bin;" + $env:Path
     
     # Uninstall python packages
     py -3.8 -m pip uninstall -y catkin_pkg cryptography empy importlib-metadata lark==1.1.1 lxml matplotlib netifaces numpy opencv-python PyQt5 pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro
