@@ -168,7 +168,7 @@ function Add_Links {
 function Install-Python {
     # Get all python versions if exists
     $PyVersions = py -0p
-    $Py38 = $PyVersions | Select-String -Pattern '(3.8)\s*(.*)python\.exe'
+    $Py38 = $PyVersions | Select-String -Pattern '(3.8)(?:-\d*)?[\s\*]*(.*)python\.exe'
 
     # Temporarily remove all other python versions
     $PyDir = $PyVersions | Select-String -Pattern '.:[^:;]*\.exe' -AllMatches
@@ -192,7 +192,7 @@ function Install-Python {
 }
 
 function Python-Path {
-    $Py38 = py -0p | Select-String -Pattern '(3.8)[\s\*]*(.*\.exe)'
+    $Py38 = py -0p | Select-String -Pattern '(3.8)(?:-\d*)?[\s\*]*(.*\.exe)'
     return $Py38.Matches.Groups[2].Value
 }
 
