@@ -31,3 +31,13 @@ You should be able to install multiple versions at once. Just opt out of the las
 - Installer based off of their [documentation](https://docs.ros.org/en/foxy/Installation/Windows-Install-Binary.html).
 #### To use, run this command inside an administrative shell (Powershell).
 `iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/scottcandy34/ros2_windows_install/main/ros2_foxy.ps1'))`
+
+## Colcon Errors:
+If you encounter this kind of result in Windows, it is a bug in the notification display, just see Success, you can ignore it
+````
+Finished <<< simple_230215 [3.75s]
+
+Summary: 1 package finished [4.20s]
+  1 package had stderr output: simple_230215
+WNDPROC return value cannot be converted to LRESULT
+```
