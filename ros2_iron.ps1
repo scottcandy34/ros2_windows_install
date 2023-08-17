@@ -107,6 +107,7 @@ function Standard-Install {
 
     py -3.8 -m pip install -U pip setuptools==59.6.0
     py -3.8 -m pip install -U catkin_pkg cryptography empy importlib-metadata jsonschema lark==1.1.1 lxml matplotlib netifaces numpy opencv-python PyQt5 pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro
+    py -3.8 -m pip install -U colcon-common-extensions
 
     # Install Miscellaneous Prerequisistes
     Install-Module -Name PS7Zip -Force
@@ -277,8 +278,9 @@ function Uninstall-Ros {
 
 function Uninstall-Dep {
     # Uninstall python packages
-    python -m pip uninstall -y catkin_pkg cryptography empy importlib-metadata jsonschema lark==1.1.1 lxml matplotlib netifaces numpy opencv-python PyQt5 pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro
-    python -m pip uninstall -Y pip setuptools==59.6.0
+    py -3.8 -m pip uninstall -y catkin_pkg cryptography empy importlib-metadata jsonschema lark==1.1.1 lxml matplotlib netifaces numpy opencv-python PyQt5 pillow psutil pycairo pydot pyparsing==2.4.7 pyyaml rosdistro
+    py -3.8 -m pip uninstall -Y pip setuptools==59.6.0
+    py -3.8 -m pip uninstall -Y colcon-common-extensions
 
     # Uninstall Chocolaty packages
     ECHO Y | choco uninstall -y graphviz -n

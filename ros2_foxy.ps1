@@ -110,6 +110,7 @@ function Standard-Install {
     choco install -y -s $DownloadDir asio cunit eigen tinyxml-usestl tinyxml2 log4cxx bullet
 
     py -3.8 -m pip install -U catkin_pkg cryptography empy ifcfg lark-parser lxml netifaces numpy opencv-python pyparsing==2.4.7 pyyaml setuptools==59.6.0 rosdistro
+    py -3.8 -m pip install -U colcon-common-extensions
 
     # Install RQt Dependencies
     py -3.8 -m pip install -U pydot PyQt5
@@ -238,8 +239,9 @@ function Uninstall-Ros {
 
 function Uninstall-Dep {
     # Uninstall python packages
-    python -m pip uninstall -Y pydot PyQt5
-    python -m pip uninstall -y catkin_pkg cryptography empy ifcfg lark-parser lxml netifaces numpy opencv-python pyparsing==2.4.7 pyyaml setuptools==59.6.0 rosdistro
+    py -3.8 -m pip uninstall -Y pydot PyQt5
+    py -3.8 -m pip uninstall -Y catkin_pkg cryptography empy ifcfg lark-parser lxml netifaces numpy opencv-python pyparsing==2.4.7 pyyaml setuptools==59.6.0 rosdistro
+    py -3.8 -m pip uninstall -Y colcon-common-extensions
 
     # Uninstall Chocolaty packages
     ECHO Y | choco uninstall -y graphviz -n
