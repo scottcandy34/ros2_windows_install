@@ -207,7 +207,8 @@ function Create-Start-File {
     $Startup = "$Dir\start.ps1"
     Remove-Item -Path $Startup
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scottcandy34/ros2_windows_install/main/start.ps1" -OutFile ($Startup)
-    "$Dir\local_setup.ps1" | Set-Content $Startup
+    "`n$Dir\local_setup.ps1" | Add-Content $Startup
+    "`$Host.UI.RawUI.WindowTitle = `"Loading $Version_Title Environment`"`n" + (Get-Content $Startup -Raw) | Set-Content $Startup
 }
 
 function Startup-Add {
