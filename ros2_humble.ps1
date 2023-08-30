@@ -1,4 +1,4 @@
-﻿﻿# Get Installer and import global functions
+# Get Installer and import global functions
 iex ((New-Object System.Net.WebClient).DownloadString('https://github.com/scottcandy34/ros2_windows_install/raw/main/installer.ps1'))
 
 # Set version
