@@ -124,7 +124,10 @@ function Add_Links {
     param (
         $Path
     )
-    $Startup = "$Path\local_setup.ps1"
+    $Startup = "$Path\start.ps1"
+    if (-not(Test-Path -Path ($Startup) -PathType Leaf)) {
+        $Startup = "$Path\local_setup.ps1"
+    }
 
     # Creating Desktop Shortcut
     $Link = ([Environment]::GetFolderPath("Desktop") + "\ROS2 $Version_Title Terminal.lnk")
@@ -134,7 +137,7 @@ function Add_Links {
     $WshShell = New-Object -comObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($Link)
     $Shortcut.TargetPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-    $Shortcut.Arguments = "-ExecutionPolicy Bypass -NoExit -File `"" + $Startup + "`""
+    $Shortcut.Arguments = "-ExecutionPolicy Bypass -NoExit -NoProfile -File `"" + $Startup + "`""
     $Shortcut.Save()
 
     # Optional add to powershell startup
@@ -196,13 +199,24 @@ function Python-Path {
     return $Py38.Matches.Groups[2].Value
 }
 
+function Create-Start-File {
+    param (
+        $Dir
+    )
+
+    $Startup = "$Dir\start.ps1"
+    Remove-Item -Path $Startup
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scottcandy34/ros2_windows_install/main/start.ps1" -OutFile ($Startup)
+    "$Dir\local_setup.ps1" | Set-Content $Startup
+}
+
 function Startup-Add {
     param (
         $Content,
         $Dir
     )
 
-    $Startup = "$Dir\local_setup.ps1"
+    $Startup = "$Dir\start.ps1"
     "$Content`n" + (Get-Content $Startup -Raw) | Set-Content $Startup
 }
 

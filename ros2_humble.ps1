@@ -1,4 +1,4 @@
-﻿# Get Installer and import global functions
+﻿﻿# Get Installer and import global functions
 iex ((New-Object System.Net.WebClient).DownloadString('https://github.com/scottcandy34/ros2_windows_install/raw/main/installer.ps1'))
 
 # Set version
@@ -136,7 +136,8 @@ function Standard-Install {
     }
     Rename-Item -NewName "ros2_$Version" -Path "$ROS_DIR\ros2-windows" -Force
 
-    # Modify setup file
+    # Create Startup Script
+    Create-Start-File -Dir "$ROS_DIR\ros2_$Version"
     Startup-Add -Content "`$env:RMW_IMPLEMENTATION = `"rmw_fastrtps_cpp`"" -Dir "$ROS_DIR\ros2_$Version"
     Startup-Add -Content "`$env:COLCON_PYTHON_EXECUTABLE = `"$PythonPath`"" -Dir "$ROS_DIR\ros2_$Version"
     $_python_env = $PythonPath.Replace("python.exe", "Scripts\;") + $PythonPath.Replace("python.exe", ";")
@@ -202,7 +203,10 @@ function Uninstall-Ros {
     $ROS_DIR = "C:\dev"
     if (Test-Path -Path $ROS_DIR) {
         $ROS_DIR_INSTALL = "$ROS_DIR\ros2_$Version"
-        $ROS_START = "$ROS_DIR_INSTALL\local_setup.ps1"
+        $ROS_START = "$ROS_DIR_INSTALL\start.ps1"
+        if (-not(Test-Path -Path ($ROS_START) -PathType Leaf)) {
+            $ROS_START = "$ROS_DIR_INSTALL\local_setup.ps1"
+        }
         if (Test-Path -Path $ROS_DIR_INSTALL) {
             Uninstall -Path $ROS_DIR_INSTALL -Title "ROS2 $Version_Title Standard"
         }
