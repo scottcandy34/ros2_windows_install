@@ -40,4 +40,8 @@ Finished <<< simple_230215 [3.75s]
 Summary: 1 package finished [4.20s]
   1 package had stderr output: simple_230215
 WNDPROC return value cannot be converted to LRESULT
-```
+````
+
+## Alternate Builds
+### RoboStack
+Installs prebuilt packages using mamba, very interesting and inspecting it. Can be found here https://robostack.github.io/index.html
